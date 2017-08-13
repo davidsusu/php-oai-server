@@ -20,8 +20,16 @@ class DefaultSetEntity extends ActiveRecordEntity implements SetEntity {
         return $this->oActiveRecord["spec"];
     }
     
+    public function setSpec($spec) {
+        $this->oActiveRecord["spec"] = $spec;
+    }
+    
     public function getName() {
         return $this->oActiveRecord["name"];
+    }
+    
+    public function setName($name) {
+        $this->oActiveRecord["name"] = $name;
     }
     
     public function delete()

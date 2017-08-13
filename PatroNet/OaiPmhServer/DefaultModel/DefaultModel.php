@@ -3,7 +3,6 @@
 namespace PatroNet\OaiPmhServer\DefaultModel;
 
 use PatroNet\Core\Database\Connection;
-use PatroNet\OaiPmhServer\Util;
 use PatroNet\OaiPmhServer\Model\OeiModel;
 
 class DefaultModel implements OeiModel {
