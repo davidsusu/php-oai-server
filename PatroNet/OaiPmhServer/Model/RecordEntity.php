@@ -179,4 +179,5 @@ interface RecordEntity {
      */
     public function setSetSpec($setSpec);
     
+    public function requestDeletion();
 }
