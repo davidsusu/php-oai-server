@@ -182,4 +182,15 @@ class DefaultRecordEntity extends ActiveRecordEntity implements RecordEntity {
         }
     }
     
+    public function save() {
+        $now = date("Y-m-d H:i:s");
+        
+        if (!$this->isStored()) {
+            $this->oActiveRecord["datetime_created"] = $now;
+        }
+        
+        $this->oActiveRecord["datetime_changed"] = $now;
+        
+        return parent::save();
+    }
 }
