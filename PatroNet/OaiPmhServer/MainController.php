@@ -12,10 +12,13 @@ class MainController implements Controller {
     
     private $oModel;
     
+    private $xslUrl;
+    
     private $metadataFormats = [];
     
-    public function __construct(Model\OeiModel $oModel) {
+    public function __construct(Model\OeiModel $oModel, $xslUrl = null) {
         $this->oModel = $oModel;
+        $this->xslUrl = $xslUrl;
         
         $this->registerMetadataFormat(new DcMetadataFormat());
     }
@@ -43,7 +46,11 @@ class MainController implements Controller {
         $currentDateTimeStamp = Util::toUtc(time());
         
         $oContentSourceList = new ContentSourceList();
-        $oContentSourceList->add(new StaticSource('<?xml version="1.0" encoding="UTF-8"?>
+        $oContentSourceList->add(new StaticSource('<?xml version="1.0" encoding="UTF-8"?>'));
+        if (!is_null($this->xslUrl)) {
+            $oContentSourceList->add(new StaticSource('<?xml-stylesheet type="text/xsl" href="' . htmlspecialchars($this->xslUrl) . '" ?>'));
+        }
+        $oContentSourceList->add(new StaticSource('
             <OAI-PMH
                 xmlns="http://www.openarchives.org/OAI/2.0/"
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
