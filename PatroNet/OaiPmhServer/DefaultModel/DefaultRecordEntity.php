@@ -175,7 +175,7 @@ class DefaultRecordEntity extends ActiveRecordEntity implements RecordEntity {
     }
     
     public function requestDeletion() {
-        if ($oModel->getDeletedRecordPolicy() == 'no') {
+        if ($this->oModel->getDeletedRecordPolicy() == 'no') {
             return $this->delete();
         } else {
             return $this->setDeleted(true)->save();
