@@ -59,7 +59,7 @@ class DefaultRecordRepository extends TableRepository implements RecordRepositor
     }
     
     public function getByIdentifier($identifier) {
-        $records = $this->getAllByFilter(['resource_identifier' => $identifier], null, 1)->fetchAll();
+        $records = $this->getAllByFilter(['oai_identifier' => $identifier], null, 1)->fetchAll();
         
         if (empty($records)) {
             return null;
