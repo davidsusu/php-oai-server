@@ -44,9 +44,6 @@ class ListIdentifiersController implements Controller {
     }
     
     public static function getRecordHeaderXml(\PatroNet\OaiPmhServer\Model\RecordEntity $oRecordEntity) {
-        $setSpecValue = $oRecordEntity->getSetSpec();
-        $setSpecValueArray = is_null($setSpecValue) ? [] : (is_array($setSpecValue) ? $setSpecValue : [$setSpecValue]);
-        
         $xmlContent = '<header';
         if ($oRecordEntity->isDeleted()) {
             $xmlContent .= ' status="deleted"';
@@ -54,8 +51,8 @@ class ListIdentifiersController implements Controller {
         $xmlContent .= '>';
         $xmlContent .= '<identifier>' . htmlspecialchars($oRecordEntity->getIdentifier()) . '</identifier>';
         $xmlContent .= '<datestamp>' . htmlspecialchars($oRecordEntity->getLastChangeUtcDateTime()) . '</datestamp>';
-        foreach ($setSpecValueArray as $setSpecValueItem) {
-            $xmlContent .= '<setSpec>' . htmlspecialchars($setSpecValueItem) . '</setSpec>';
+        foreach ($oRecordEntity->getSets() as $oSetEntity) {
+            $xmlContent .= '<setSpec>' . htmlspecialchars($oSetEntity->getSpec()) . '</setSpec>';
         }
         $xmlContent .= '</header>';
         

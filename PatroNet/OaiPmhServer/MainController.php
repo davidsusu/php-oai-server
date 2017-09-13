@@ -16,7 +16,7 @@ class MainController implements Controller {
     
     private $metadataFormats = [];
     
-    public function __construct(Model\OeiModel $oModel, $xslUrl = null) {
+    public function __construct(Model\OaiModel $oModel, $xslUrl = null) {
         $this->oModel = $oModel;
         $this->xslUrl = $xslUrl;
         

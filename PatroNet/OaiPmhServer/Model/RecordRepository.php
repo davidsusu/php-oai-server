@@ -5,7 +5,7 @@ namespace PatroNet\OaiPmhServer\Model;
 interface RecordRepository {
     
     /**
-     * @return RecordEntity[]|Iterator
+     * @return RecordEntity[]|\Iterator
      */
     public function getAllByOaiFilter($fromDateTime, $untilDateTime, $setSpec);
     

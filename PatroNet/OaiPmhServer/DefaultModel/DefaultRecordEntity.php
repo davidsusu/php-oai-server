@@ -6,15 +6,29 @@ use PatroNet\Core\Database\ActiveRecord;
 use PatroNet\Core\Entity\ActiveRecordEntity;
 use PatroNet\OaiPmhServer\Util;
 use PatroNet\OaiPmhServer\Model\RecordEntity;
+use PatroNet\OaiPmhServer\Model\RecordEntityTrait;
+use PatroNet\Cms\Modules\OaiPmh\Constants;
+use PatroNet\Core\Database\Table;
+use PatroNet\OaiPmhServer\Model\SetEntity;
 
 class DefaultRecordEntity extends ActiveRecordEntity implements RecordEntity {
     
+    use RecordEntityTrait;
+    
     private $oModel;
+    
+    private $oItemSetTable;
+    
+    private $oMetaTable;
+    
+    private $metaValuesToSaveMap = [];
     
     public function __construct(DefaultModel $oModel, ActiveRecord $oActiveRecord)
     {
         parent::__construct($oActiveRecord);
         $this->oModel = $oModel;
+        $this->oItemSetTable = $this->oModel->getConnection()->getTable(Constants::TABLE_PREFIX . "item2set");
+        $this->oMetaTable = $this->oModel->getConnection()->getTable(Constants::TABLE_PREFIX . "item_meta");
     }
     
     public function getLastChangeUtcDateTime() {
@@ -39,139 +53,41 @@ class DefaultRecordEntity extends ActiveRecordEntity implements RecordEntity {
         return $this;
     }
     
-    public function getTitle() {
-        return $this->oActiveRecord["title"];
+    
+    public function getSets() {
+        return $this->oModel->getSetRepository()->getAllByFilter(["item2set.item_id" => $this->getId()], ["set.name" => "asc"]);
     }
     
-    public function setTitle($title) {
-        $this->oActiveRecord["title"] = $title;
-        return $this;
+    public function setSets($sets) {
+        $id = $this->getId();
+        
+        if (!$this->oItemSetTable->deleteAll(["item_id" => $id])->isSuccess()) {
+            return false;
+        }
+        
+        foreach ($sets as $set) {
+            $setId = ($set instanceof SetEntity) ? $set->getId() : $set;
+            if (!$this->oItemSetTable->save(["item_id" => $id, "set_id" => $setId])->isSuccess()) {
+                return false;
+            }
+        }
+        
+        return true;
     }
     
-    public function getCreator() {
-        return $this->oActiveRecord["creator"];
+    
+    public function getMetaValues($key) {
+        if (isset($this->metaValuesToSaveMap[$key])) {
+            return $this->metaValuesToSaveMap[$key];
+        } else if ($this->isStored()) {
+            return $this->oMetaTable->getColumn("value", ["item_id" => $this->getId(), "key" => $key], ["value" => "asc"]);
+        } else {
+            return [];
+        }
     }
     
-    public function setCreator($creator) {
-        $this->oActiveRecord["creator"] = $creator;
-        return $this;
-    }
-    
-    public function getSubject() {
-        return $this->oActiveRecord["subject"];
-    }
-    
-    public function setSubject($subject) {
-        $this->oActiveRecord["subject"] = $subject;
-        return $this;
-    }
-    
-    public function getDescription() {
-        return $this->oActiveRecord["description"];
-    }
-    
-    public function setDescription($description) {
-        $this->oActiveRecord["description"] = $description;
-        return $this;
-    }
-    
-    public function getPublisher() {
-        return $this->oActiveRecord["publisher"];
-    }
-    
-    public function setPublisher($publisher) {
-        $this->oActiveRecord["publisher"] = $publisher;
-        return $this;
-    }
-    
-    public function getContributor() {
-        return $this->oActiveRecord["contributor"];
-    }
-    
-    public function setContributor($contributor) {
-        $this->oActiveRecord["contributor"] = $contributor;
-        return $this;
-    }
-    
-    public function getDate() {
-        return $this->oActiveRecord["date"];
-    }
-    
-    public function setDate($date) {
-        $this->oActiveRecord["date"] = $date;
-        return $this;
-    }
-    
-    public function getType() {
-        return $this->oActiveRecord["type"];
-    }
-    
-    public function setType($type) {
-        $this->oActiveRecord["type"] = $type;
-        return $this;
-    }
-    
-    public function getFormat() {
-        return $this->oActiveRecord["format"];
-    }
-    
-    public function setFormat($format) {
-        $this->oActiveRecord["format"] = $format;
-        return $this;
-    }
-    
-    public function getSource() {
-        return $this->oActiveRecord["source"];
-    }
-    
-    public function setSource($source) {
-        $this->oActiveRecord["source"] = $source;
-        return $this;
-    }
-    
-    public function getLanguage() {
-        return $this->oActiveRecord["language"];
-    }
-    
-    public function setLanguage($language) {
-        $this->oActiveRecord["language"] = $language;
-        return $this;
-    }
-    
-    public function getRelation() {
-        return $this->oActiveRecord["relation"];
-    }
-    
-    public function setRelation($relation) {
-        $this->oActiveRecord["relation"] = $relation;
-        return $this;
-    }
-    
-    public function getCoverage() {
-        return $this->oActiveRecord["coverage"];
-    }
-    
-    public function setCoverage($coverage) {
-        $this->oActiveRecord["coverage"] = $coverage;
-        return $this;
-    }
-    
-    public function getRights() {
-        return $this->oActiveRecord["rights"];
-    }
-    
-    public function setRights($rights) {
-        $this->oActiveRecord["rights"] = $rights;
-        return $this;
-    }
-    
-    public function getSetSpec() {
-        return $this->oActiveRecord["set_spec"];
-    }
-    
-    public function setSetSpec($setSpec) {
-        $this->oActiveRecord["set_spec"] = $setSpec;
-        return $this;
+    public function setMetaValues($key, $values) {
+        $this->metaValuesToSaveMap[$key] = $values;
     }
     
     public function requestDeletion() {
@@ -185,12 +101,38 @@ class DefaultRecordEntity extends ActiveRecordEntity implements RecordEntity {
     public function save() {
         $now = date("Y-m-d H:i:s");
         
-        if (!$this->isStored()) {
+        $wasStored = $this->isStored();
+        
+        if (!$wasStored) {
             $this->oActiveRecord["datetime_created"] = $now;
         }
         
         $this->oActiveRecord["datetime_changed"] = $now;
         
-        return parent::save();
+        if (!parent::save()) {
+            return false;
+        }
+        
+        $id = $this->getId();
+        
+        foreach ($this->metaValuesToSaveMap as $key => $values) {
+            if ($wasStored) {
+                $this->oMetaTable->deleteAll(["item_id" => $id, "key" => $key]);
+            }
+            foreach ($values as $value) {
+                $this->oMetaTable->save(["item_id" => $id, "key" => $key, "value" => $value]);
+            }
+        }
+        
+        return true;
     }
+    
+    public function delete() {
+        $this->oMetaTable->deleteAll(["item_id" => $id]);
+        
+        $this->oItemSetTable->save(["item_id" => null, ["item_id" => $this->getId()], Table::SAVETYPE_UPDATE_ALL]);
+        
+        return parent::delete();
+    }
+    
 }

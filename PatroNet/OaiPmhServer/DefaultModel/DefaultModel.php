@@ -3,9 +3,9 @@
 namespace PatroNet\OaiPmhServer\DefaultModel;
 
 use PatroNet\Core\Database\Connection;
-use PatroNet\OaiPmhServer\Model\OeiModel;
+use PatroNet\OaiPmhServer\Model\OaiModel;
 
-class DefaultModel implements OeiModel {
+class DefaultModel implements OaiModel {
     
     
     private static $defaultSettings = [

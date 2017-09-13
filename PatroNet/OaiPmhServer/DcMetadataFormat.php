@@ -17,9 +17,21 @@ class DcMetadataFormat implements OaiMetadataFormat {
     }
     
     public function getRecordMetadataXml(Model\RecordEntity $oRecordEntity) {
-        $fieldNames = [
-            'identifier', 'title', 'creator', 'subject', 'description', 'publisher', 'contributor',
-            'date', 'type', 'format', 'source', 'language', 'relation', 'coverage', 'rights',
+        $multiValueFieldMap = [
+            'title' => 'getTitles',
+            'creator' => 'getCreators',
+            'subject' => 'getSubjects',
+            'description' => 'getDescriptions',
+            'publisher' => 'getPublishers',
+            'contributor' => 'getContributors',
+            'date' => 'getDates',
+            'type' => 'getTypes',
+            'format' => 'getFormats',
+            'source' => 'getSources',
+            'language' => 'getLanguages',
+            'relation' => 'getRelations',
+            'coverage' => 'getCoverages',
+            'rights' => 'getRightses',
         ];
         
         $xmlContent = '<metadata>';
@@ -31,12 +43,11 @@ class DcMetadataFormat implements OaiMetadataFormat {
              http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
          >';
         
-        foreach ($fieldNames as $fieldName) {
-            $method = 'get' . ucfirst($fieldName);
-            $value = $oRecordEntity->$method();
-            $valueArray = is_null($value) ? [] : (is_array($value) ? $value : [$value]);
-            foreach ($valueArray as $valueItem) {
-                $xmlContent .= '<dc:' . $fieldName . '>' . htmlspecialchars($valueItem) . '</dc:' . $fieldName . '>';
+        $xmlContent .= '<dc:identifier>' . htmlspecialchars($oRecordEntity->getIdentifier()) . '</dc:identifier>';
+        
+        foreach ($multiValueFieldMap as $fieldName => $methodName) {
+            foreach ($oRecordEntity->$methodName() as $value) {
+                $xmlContent .= '<dc:' . $fieldName . '>' . htmlspecialchars($value) . '</dc:' . $fieldName . '>';
             }
         }
         

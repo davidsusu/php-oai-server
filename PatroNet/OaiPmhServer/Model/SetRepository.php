@@ -5,7 +5,7 @@ namespace PatroNet\OaiPmhServer\Model;
 interface SetRepository {
     
     /**
-     * @return SetEntity[]|Iterator
+     * @return SetEntity[]|\Iterator
      */
     public function getAll();
     

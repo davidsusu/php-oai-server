@@ -21,7 +21,8 @@ class DefaultRecordRepository extends TableRepository implements RecordRepositor
     {
         $this->oModel = $oModel;
         parent::__construct($oTable = $oModel->getConnection()->getTable($oModel->getTablePrefix() . "item", "item_id", "item"));
-        $oTable->addRelation("set", ["item.set_spec" => "set.spec"], $oModel->getTablePrefix() . "set");
+        $oTable->addRelation("item2set", ["item.item_id" => "item2set.item_id"], $oModel->getTablePrefix() . "item2set");
+        $oTable->addRelation("set", ["set.set_id" => "item2set.set_id"], $oModel->getTablePrefix() . "set");
     }
 
     /**
@@ -38,21 +39,23 @@ class DefaultRecordRepository extends TableRepository implements RecordRepositor
         
         if (!is_null($fromDateTime)) {
             $reformattedFromDateTime = $this->reformatDate($fromDateTime);
-            $filter["datetime_changed"] = [">=", $reformattedFromDateTime];
+            $filter["item.datetime_changed"] = [">=", $reformattedFromDateTime];
         }
         
         if (!is_null($untilDateTime)) {
             $reformattedUntilDateTime = $this->reformatDate($untilDateTime);
-            if (empty($filter["datetime_changed"])) {
-                $reformattedFromDateTime = $filter["datetime_changed"][1];
-                $filter["datetime_changed"] = ["between", [$reformattedFromDateTime, $reformattedUntilDateTime]];
+            if (empty($filter["item.datetime_changed"])) {
+                $reformattedFromDateTime = $filter["item.datetime_changed"][1];
+                $filter["item.datetime_changed"] = ["between", [$reformattedFromDateTime, $reformattedUntilDateTime]];
             } else {
-                $filter["datetime_changed"] = ["<", $reformattedUntilDateTime];
+                $filter["item.datetime_changed"] = ["<", $reformattedUntilDateTime];
             }
         }
         
         if (!is_null($setSpec)) {
-            $filter["set_spec"] = $setSpec;
+            $oSet = $this->oModel->getSetRepository()->getBySpec($setSpec);
+            $setId = $oSet ? $oSet->getId() : null;
+            $filter["item2set.set_id"] = $setId;
         }
         
         return $this->getAllByFilter($filter);

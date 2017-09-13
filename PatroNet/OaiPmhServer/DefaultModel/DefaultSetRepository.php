@@ -20,6 +20,8 @@ class DefaultSetRepository extends TableRepository implements SetRepository {
     {
         $this->oModel = $oModel;
         parent::__construct($oTable = $oModel->getConnection()->getTable($oModel->getTablePrefix() . "set", "set_id", "set"));
+        $oTable->addRelation("item2set", ["set.set_id" => "item2set.set_id"], $oModel->getTablePrefix() . "item2set");
+        $oTable->addRelation("item", ["item.item_id" => "item2set.item_id"], $oModel->getTablePrefix() . "item");
     }
 
     /**
@@ -29,6 +31,33 @@ class DefaultSetRepository extends TableRepository implements SetRepository {
     protected function wrapActiveRecordToEntity(ActiveRecord $oActiveRecord)
     {
         return new DefaultSetEntity($this->oModel, $oActiveRecord);
+    }
+    
+    public function getBySpec($spec) {
+        $oSetTable = $this->getTable();
+        $tokens = explode(".", $spec);
+        $setId = 0;
+        foreach ($tokens as $token) {
+            $setRow = $oSetTable->getFirst(["parent_id" => $setId, "key" => $token], null, ["set_id"]);
+            if (empty($setRow)) {
+                return null;
+            }
+            $setId = $setRow["set_id"];
+        }
+        $oSet = $this->get($setId);
+        return $oSet;
+    }
+    
+    public function getSetsInOrder($setId = 0) {
+        $result = [];
+        
+        $sets = $this->oModel->getSetRepository()->getAllByFilter(["parent_id" => $setId], ["name" => "asc"]);
+        foreach ($sets as $oSet) {
+            $result[] = $oSet;
+            $result = array_merge($result, self::getSetsInOrder($oSet->getId()));
+        }
+        
+        return $result;
     }
     
 }
