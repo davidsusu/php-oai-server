@@ -31,6 +31,7 @@ class DefaultSetEntity extends ActiveRecordEntity implements SetEntity {
     
     public function setParent($idOrSetEntity) {
         $parentId = ($idOrSetEntity instanceof SetEntity) ? $idOrSetEntity->getId() : $idOrSetEntity;
+        $this->oActiveRecord["parent_id"] = $parentId;
     }
     
     public function getChildren() {
