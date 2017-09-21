@@ -38,6 +38,16 @@ class DefaultSetEntity extends ActiveRecordEntity implements SetEntity {
         return $this->oModel->getSetRepository()->getAllByFilter(["parent_id" => $this->getId()], ["name" => "asc"]);
     }
     
+    public function getLevel() {
+        $level = -1;
+        $oParent = $this;
+        do {
+            $level++;
+            $oParent = $oParent->getParent();
+        } while (!empty($oParent));
+        return $level;
+    }
+    
     public function getRecords() {
         return $this->oModel->getRecordRepository()->getAllByFilter(["item2set.set_id" => $this->getId()], ["item.item_id" => "asc"]);
     }

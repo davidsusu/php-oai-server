@@ -20,6 +20,11 @@ interface SetEntity {
     public function getChildren();
     
     /**
+     * @return integer
+     */
+    public function getLevel();
+    
+    /**
      * @return \Traversable|\Countable|RecordEntity[]
      */
     public function getRecords();
