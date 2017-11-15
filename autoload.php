@@ -1,7 +1,7 @@
 <?php
 
 use PatroNet\Core\Autoload\Registrator;
-use PatroNet\Core\Autoload\Psr0Autoloader;
+use PatroNet\Core\Autoload\PathAutoloader;
 
-Registrator::register(new Psr0Autoloader('PatroNet\\OaiPmhServer', __DIR__ . '/PatroNet/OaiPmhServer'));
+Registrator::register(new PathAutoloader('PatroNet\\OaiPmhServer', __DIR__ . '/PatroNet/OaiPmhServer'));
 
