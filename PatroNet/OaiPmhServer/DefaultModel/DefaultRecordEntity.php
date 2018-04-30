@@ -7,7 +7,6 @@ use PatroNet\Core\Entity\ActiveRecordEntity;
 use PatroNet\OaiPmhServer\Util;
 use PatroNet\OaiPmhServer\Model\RecordEntity;
 use PatroNet\OaiPmhServer\Model\RecordEntityTrait;
-use PatroNet\Cms\Modules\OaiPmh\Constants;
 use PatroNet\Core\Database\Table;
 use PatroNet\OaiPmhServer\Model\SetEntity;
 
@@ -27,8 +26,8 @@ class DefaultRecordEntity extends ActiveRecordEntity implements RecordEntity {
     {
         parent::__construct($oActiveRecord);
         $this->oModel = $oModel;
-        $this->oItemSetTable = $this->oModel->getConnection()->getTable(Constants::TABLE_PREFIX . "item2set");
-        $this->oMetaTable = $this->oModel->getConnection()->getTable(Constants::TABLE_PREFIX . "item_meta");
+        $this->oItemSetTable = $this->oModel->getConnection()->getTable($oModel->getTablePrefix() . "item2set");
+        $this->oMetaTable = $this->oModel->getConnection()->getTable($oModel->getTablePrefix() . "item_meta");
     }
     
     public function getLastChangeUtcDateTime() {

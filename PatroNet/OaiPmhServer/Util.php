@@ -2,9 +2,6 @@
 
 namespace PatroNet\OaiPmhServer;
 
-use PatroNet\Core\Request\Controller;
-use PatroNet\Core\Request\Request;
-
 class Util {
     
     public static function toUtc($date) {

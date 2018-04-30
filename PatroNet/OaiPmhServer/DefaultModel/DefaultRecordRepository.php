@@ -21,8 +21,8 @@ class DefaultRecordRepository extends TableRepository implements RecordRepositor
     {
         $this->oModel = $oModel;
         parent::__construct($oTable = $oModel->getConnection()->getTable($oModel->getTablePrefix() . "item", "item_id", "item"));
-        $oTable->addRelation("item2set", ["item.item_id" => "item2set.item_id"], $oModel->getTablePrefix() . "item2set");
-        $oTable->addRelation("set", ["set.set_id" => "item2set.set_id"], $oModel->getTablePrefix() . "set");
+        $oTable->addJoin("item2set", ["item.item_id" => "item2set.item_id"], $oModel->getTablePrefix() . "item2set");
+        $oTable->addJoin("set", ["set.set_id" => "item2set.set_id"], $oModel->getTablePrefix() . "set");
     }
 
     /**

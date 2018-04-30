@@ -5,7 +5,6 @@ namespace PatroNet\OaiPmhServer\DefaultModel;
 use PatroNet\Core\Database\ActiveRecord;
 use PatroNet\Core\Entity\ActiveRecordEntity;
 use PatroNet\OaiPmhServer\Model\SetEntity;
-use PatroNet\Cms\Modules\OaiPmh\Constants;
 use PatroNet\Core\Database\Table;
 
 class DefaultSetEntity extends ActiveRecordEntity implements SetEntity {
@@ -18,7 +17,7 @@ class DefaultSetEntity extends ActiveRecordEntity implements SetEntity {
     {
         parent::__construct($oActiveRecord);
         $this->oModel = $oModel;
-        $this->oItemSetTable = $this->oModel->getConnection()->getTable(Constants::TABLE_PREFIX . "item2set");
+        $this->oItemSetTable = $this->oModel->getConnection()->getTable($oModel->getTablePrefix() . "item2set");
     }
     
     public function getParent() {

@@ -20,8 +20,8 @@ class DefaultSetRepository extends TableRepository implements SetRepository {
     {
         $this->oModel = $oModel;
         parent::__construct($oTable = $oModel->getConnection()->getTable($oModel->getTablePrefix() . "set", "set_id", "set"));
-        $oTable->addRelation("item2set", ["set.set_id" => "item2set.set_id"], $oModel->getTablePrefix() . "item2set");
-        $oTable->addRelation("item", ["item.item_id" => "item2set.item_id"], $oModel->getTablePrefix() . "item");
+        $oTable->addJoin("item2set", ["set.set_id" => "item2set.set_id"], $oModel->getTablePrefix() . "item2set");
+        $oTable->addJoin("item", ["item.item_id" => "item2set.item_id"], $oModel->getTablePrefix() . "item");
     }
 
     /**
